@@ -1,0 +1,14 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "actions-on-google": "^1.3.0",
+    "firebase-admin": "~5.2.1",
+    "firebase-functions": "^0.6.2"
+  },
+  "private": true,
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha test"
+  }
+}
