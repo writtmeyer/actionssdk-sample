@@ -1,4 +1,20 @@
 # Dependency directories
 node_modules/
 
+# Firebase backend project mapping;
+# Will be created by >>firebase init<<
+# and has to point to _your_ backend
 .firebaserc
+
+# Webstorm
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
