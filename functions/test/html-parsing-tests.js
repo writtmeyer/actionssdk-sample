@@ -5,7 +5,7 @@ const parser = require('cheerio')
 
 describe("HTML Parsing", function () {
     const systemUnderTest = require("../parsing/parsing.js")
-    
+
     beforeEach(function () {
         chai.should();
     });
