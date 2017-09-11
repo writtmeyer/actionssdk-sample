@@ -70,4 +70,31 @@ describe("API calls", function () {
                 }
             );
     });
+
+    it('should fail when socket connection times out', function (done) {
+        let expectedString = '<div class="bgdark"></div>';
+        nock(systemUnderTest.URL)
+            .get(systemUnderTest.PATH + systemUnderTest.PARAMS)
+            .socketDelay(4500)
+            .reply(200, expectedString);
+        let actual$ = systemUnderTest.getNextTransfersFromApi$();
+        let count = 0;
+        actual$
+            .subscribeOn(Rx.Scheduler.queue)
+            .observeOn(Rx.Scheduler.queue)
+            .subscribe(
+                (val) => done(new Error('value should not be emitted')),
+                (err) => {
+                    if (err.cause &&
+                        err.cause.message &&
+                        err.cause.message === 'ESOCKETTIMEDOUT') {
+                        done();
+                    }
+                    else {
+                        done(new Error('Wrong type of error occurred'))
+                    }
+                () => done(new Error("onCompleted should not be called"))
+                }
+            );
+    });
 });

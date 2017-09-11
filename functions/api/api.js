@@ -13,7 +13,12 @@ module.exports = {
     getNextTransfersFromApi$: function () {
         function getNextTransfersFromApiDeferred() {
             let url = URL + PATH + PARAMS;
-            let requestPromise = rp(url);
+            let options = {
+                "uri": url,
+                "timeout": 4000,
+                "maxAttempts": 1
+            };
+            let requestPromise = rp(options);
             let observable = Rx.Observable.fromPromise(requestPromise);
             return observable;
         }
