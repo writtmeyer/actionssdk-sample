@@ -6,6 +6,9 @@ node_modules/
 # and has to point to _your_ backend
 .firebaserc
 
+# gactions access token
+creds.data
+
 # Webstorm
 .idea/**/workspace.xml
 .idea/**/tasks.xml
