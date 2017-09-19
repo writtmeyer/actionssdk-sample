@@ -22,7 +22,7 @@ module.exports = {
             let observable = Rx.Observable.fromPromise(requestPromise);
             return observable;
         }
-        return getNextTransfersFromApiDeferred();
+        return Rx.Observable.defer(() => getNextTransfersFromApiDeferred());
     }
 };
 
