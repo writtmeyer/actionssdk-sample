@@ -80,9 +80,7 @@ describe("API calls", function () {
             .subscribe(
                 (val) => done(new Error('value should not be emitted')),
                 (err) => {
-                    if (err.cause &&
-                        err.cause.message &&
-                        err.cause.message === 'ESOCKETTIMEDOUT') {
+                    if (err.name === 'TimeoutError') {
                         done();
                     }
                     else {
