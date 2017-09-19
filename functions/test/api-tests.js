@@ -1,15 +1,10 @@
 "use strict";
 
-const chai = require('chai');
 const nock = require('nock');
 const Rx = require("rxjs");
 
 describe("API calls", function () {
     const systemUnderTest = require('../api/api.js');
-
-    beforeEach(function () {
-        chai.should();
-    });
 
     it('should return empty html when api call results in exception', function (done) {
         nock(systemUnderTest.URL)
