@@ -16,7 +16,7 @@ exports.getNextTransfers = function(html) {
         transfers.push({
             "line": line,
             "direction": direction,
-            "time": time.replace("Min", "Minuten")
+            "time": parseInt(time.replace(" Min", ""))
         });
     });
     return transfers;

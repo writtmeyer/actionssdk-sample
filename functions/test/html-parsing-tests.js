@@ -32,7 +32,7 @@ describe("HTML Parsing", function () {
                 `;
         let nextTransfers = systemUnderTest.getNextTransfers(html);
         nextTransfers.length.should.eql(1);
-        assertTransferHasCorrectAttributes(nextTransfers[0], "N82", "Amelsbüren Süd", "7 Minuten");
+        assertTransferHasCorrectAttributes(nextTransfers[0], "N82", "Amelsbüren Süd", 7);
     });
 
     it('parser should return three entries for valid html with three upcoming busses', function () {
@@ -60,9 +60,9 @@ describe("HTML Parsing", function () {
                 `;
         let nextTransfers = systemUnderTest.getNextTransfers(html);
         nextTransfers.length.should.eql(3);
-        assertTransferHasCorrectAttributes(nextTransfers[0], "N82", "Amelsbüren Süd", "7 Minuten");
-        assertTransferHasCorrectAttributes(nextTransfers[1], "N85", "Wolbeck Markt", "8 Minuten");
-        assertTransferHasCorrectAttributes(nextTransfers[2], "N81", "Hiltrup Franz-Marc-Weg", "11 Minuten");
+        assertTransferHasCorrectAttributes(nextTransfers[0], "N82", "Amelsbüren Süd", 7);
+        assertTransferHasCorrectAttributes(nextTransfers[1], "N85", "Wolbeck Markt", 8);
+        assertTransferHasCorrectAttributes(nextTransfers[2], "N81", "Hiltrup Franz-Marc-Weg", 11);
     });
 
     function assertTransferHasCorrectAttributes(transfer, line, direction, time) {
