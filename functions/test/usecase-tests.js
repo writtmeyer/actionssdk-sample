@@ -18,7 +18,7 @@ describe('Usecase testing', function () {
             "isSuccessful": true,
             "error": {},
             "response": {
-                "message": "There are four busses coming up. The first is number 16 towards 'Mecklenbeck Meckmannweg' coming in one minute. The second is number N81 towards 'Hiltrup Franz-Marc-Weg' coming in 12 minutes."
+                "message": "There are 2 busses coming up. The 1st is number 16 towards 'Mecklenbeck Meckmannweg' coming in 1 minute. The 2nd is number N81 towards 'Hiltrup Franz-Marc-Weg' coming in 12 minutes."
             }
         };
         errorResponse = {
@@ -30,15 +30,18 @@ describe('Usecase testing', function () {
         };
     });
 
-    it('usecase should return properly formatted object indicating success and message', function (done) {
+    it('usecase should return formatted object indicating that api responded with empty schedule', function (done) {
+        let html = `
+        <span class="haltestellenlable" id="haltestellenlableID">Nordplatz B</span><br />
+        <br />22:33:08<br />einwÃ¤rts`;
         nock(URL)
             .get(QUERYSTRING)
-            .replyWithError("Network timeout");
-            
+            .reply(200, html);
+
         let actual$ = systemUnderTest.callApiAndPrepareResponse$();
         let onNextCount = 0;
-        let expected = errorResponse;
-        expected.error.errorMessage = "Sorry. the API didn't respond in time. You might wish to try again.";
+        let expected = successResponse;
+        expected.response.message = "I'm sorry. But I didn't get any busses via the API. Either there really is none coming or the API responded erroneously.";
         actual$
             .subscribeOn(Rx.Scheduler.queue)
             .observeOn(Rx.Scheduler.queue)
@@ -58,7 +61,117 @@ describe('Usecase testing', function () {
             );
     });
 
-    it('usecase should return object indicating error and containing and error message', function (done) {
+    it('usecase should return formatted object indicating that api responded with one bus scheduled', function (done) {
+        let html = `
+        <span class="haltestellenlable" id="haltestellenlableID">Nordplatz B</span><br />
+        <div class="bgdark">
+           <div class="line">16</div>
+           <div style="visibility:hidden;" class="rollstuhlsymbol"></div>
+           <div class="direction">Mecklenbeck Meckmannweg</div>
+           <div class="time">1 Min</div>
+           <br class="clear" />
+        </div>
+        <br />22:33:08<br />einwÃ¤rts`;
+        nock(URL)
+            .get(QUERYSTRING)
+            .reply(200, html);
+
+        let actual$ = systemUnderTest.callApiAndPrepareResponse$();
+        let onNextCount = 0;
+        let expected = successResponse;
+        expected.response.message = "There is one bus coming up. The 1st is number 16 towards 'Mecklenbeck Meckmannweg' coming in 1 minute.";
+        actual$
+            .subscribeOn(Rx.Scheduler.queue)
+            .observeOn(Rx.Scheduler.queue)
+            .subscribe(
+            (val) => {
+                onNextCount++;
+                val.should.eql(expected, "The response object is not of the expected format");
+            },
+            (err) => {
+                console.error(err);
+                done(new Error('onError should not be called'));
+            },
+            () => {
+                onNextCount.should.eql(1, 'onNext should be called exactly once; was called: ' + onNextCount);
+                done();
+            }
+            );
+    });
+
+    it('usecase should return formatted object indicating that api responded with two busses scheduled', function (done) {
+        let html = `
+        <span class="haltestellenlable" id="haltestellenlableID">Nordplatz B</span><br />
+        <div class="bgdark">
+           <div class="line">16</div>
+           <div style="visibility:hidden;" class="rollstuhlsymbol"></div>
+           <div class="direction">Mecklenbeck Meckmannweg</div>
+           <div class="time">1 Min</div>
+           <br class="clear" />
+        </div>
+        <div class="bgwith">
+           <div class="line">N81</div>
+           <div style="visibility:hidden;" class="rollstuhlsymbol"></div>
+           <div class="direction">Hiltrup Franz-Marc-Weg</div>
+           <div class="time">12 Min</div>
+           <br class="clear" />
+        </div>
+        <br />22:33:08<br />einwÃ¤rts`;
+        nock(URL)
+            .get(QUERYSTRING)
+            .reply(200, html);
+
+        let actual$ = systemUnderTest.callApiAndPrepareResponse$();
+        let onNextCount = 0;
+        let expected = successResponse;
+        actual$
+            .subscribeOn(Rx.Scheduler.queue)
+            .observeOn(Rx.Scheduler.queue)
+            .subscribe(
+            (val) => {
+                onNextCount++;
+                val.should.eql(expected, "The response object is not of the expected format");
+            },
+            (err) => {
+                console.error(err);
+                done(new Error('onError should not be called'));
+            },
+            () => {
+                onNextCount.should.eql(1, 'onNext should be called exactly once; was called: ' + onNextCount);
+                done();
+            }
+            );
+    });
+
+    it('usecase should return object indicating error and containing error message for timeouts', function (done) {
+        nock(URL)
+            .get(QUERYSTRING)
+            .replyWithError("Network timeout");
+
+        let actual$ = systemUnderTest.callApiAndPrepareResponse$();
+        let onNextCount = 0;
+        let expected = errorResponse;
+        expected.error.errorMessage = "I'm sorry. But I cannot tell you whether you have to rush. Alas, the service didn't answer in time.";
+        actual$
+            .subscribeOn(Rx.Scheduler.queue)
+            .observeOn(Rx.Scheduler.queue)
+            .subscribe(
+            (val) => {
+                onNextCount++;
+                val.should.eql(expected, "The response object is not of the expected format");
+            },
+            (err) => {
+                console.error(err);
+                done(new Error('onError should not be called'));
+            },
+            () => {
+                onNextCount.should.eql(1, 'onNext should be called exactly once; was called: ' + onNextCount);
+                done();
+            }
+            );
+    });
+
+    it('usecase should return object indicating error and containing error message for server problems', function (done) {
         nock(URL)
             .get(QUERYSTRING)
             .reply(500, 'Internal server error');
@@ -66,7 +179,7 @@ describe('Usecase testing', function () {
         let actual$ = systemUnderTest.callApiAndPrepareResponse$();
         let onNextCount = 0;
         let expected = errorResponse;
-        expected.error.errorMessage = "Sorry. the API responded with an error code. Please try again at another time.";
+        expected.error.errorMessage = "I'm sorry. The API responded with an error code. Please try again at another time.";
         actual$
             .subscribeOn(Rx.Scheduler.queue)
             .observeOn(Rx.Scheduler.queue)

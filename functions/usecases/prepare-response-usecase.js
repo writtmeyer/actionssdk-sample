@@ -3,19 +3,63 @@
 const Rx = require('rxjs');
 const api = require('../api/api');
 const parser = require('../parsing/parsing');
+const ANSWER_TEMPLATE = 
+"The 2nd is number N81 towards 'Hiltrup Franz-Marc-Weg' coming in 12 minutes."
 
-function mapToAnswer(apiResult) {
-    return "Sorry. There's no bus scheduled.";
+
+function mapToAnswer(arrayOfTransfers) {
+    let result = {
+        "isSuccessful": true,
+        "error": {},
+        "response": {
+            "message": ""
+        }
+    };
+    let count = arrayOfTransfers.length;
+    if (count === 0) {
+        result.response.message = "I'm sorry. But I didn't get any busses via the API. Either there really is none coming or the API responded erroneously.";
+        return result;
+    }
+    let countString = count === 1 ? 'is one bus' : `are ${count} busses`;  
+    let answerText = `There ${countString} coming up. `;
+    arrayOfTransfers.forEach(function(currentVal, index) {
+        answerText += getAnswerTextForSingleEntry(currentVal, index);
+    });
+    result.response.message = answerText.trim();
+    return result;
 }
+
+function getAnswerTextForSingleEntry(entry, index) {
+    let ordinal = getOrdinal(index + 1);
+    let minutesString = entry.time === 1 ? 'minute' : 'minutes';
+    let duration = entry.time;
+    let destination = entry.direction;
+    let busNumber = entry.line;
+    let messageForThisBus = `The ${ordinal} is number ${busNumber} towards '${destination}' coming in ${duration} ${minutesString}. `;
+    return messageForThisBus;
+
+}
+
+// being lazy, I asked the web, which came up with this function
+// origin: https://stackoverflow.com/a/12487454
+function getOrdinal(n) {
+    if((parseFloat(n) == parseInt(n)) && !isNaN(n)){
+        var s=["th","st","nd","rd"],
+        v=n%100;
+        return n+(s[(v-20)%10]||s[v]||s[0]);
+    }
+    return n;
+}
+
 
 function handleError(err) {
     let message;
     if (err.name === "ApiError") {
-        message = "Sorry. the API responded with an error code. Please try again at another time.";
+        message = "I'm sorry. The API responded with an error code. Please try again at another time.";
     } else if (err.name === "TimeoutError") {
-        message = "Sorry. the API didn't respond in time. You might wish to try again.";
+        message = "I'm sorry. But I cannot tell you whether you have to rush. Alas, the service didn't answer in time.";
     } else {
-        message = "Sorry. I have no idea what happened. Plase try again at anaother time.";
+        message = "I'm sorry. Something went wrong, but I have no idea what. Plase try again at another time.";
     }
     let result = {
         "isSuccessful": false,
@@ -30,9 +74,8 @@ function handleError(err) {
 module.exports = {
     callApiAndPrepareResponse$: function () {
         return api.getNextTransfersFromApi$()
+            .map(value => parser.getNextTransfers(value))
             .map(value => mapToAnswer(value))
-            .do(val => console.debug(val))
-            .catch(err => handleError(err)
-            );
+            .catch(err => handleError(err));
     }
 }
