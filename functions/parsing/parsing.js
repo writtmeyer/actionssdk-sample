@@ -3,7 +3,7 @@
 const parser = require("cheerio");
 
 exports.getNextTransfers = function (html) {
-    if (!html) {
+    if (typeof html === 'undefined' || html === null) {
         throw Error('param html must neither be null nor undefined');
     }
     let $ = parser.load(html);
