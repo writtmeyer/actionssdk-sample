@@ -1,0 +1,15 @@
+# Based on the sample build configuration for JavaScript.
+# Only use spaces to indent your .yml configuration.
+# -----
+image: node:6.9.4
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - node
+        script: # Modify the commands below to build your repository.
+          - cd functions
+          - npm install -g mocha
+          - npm install
+          - npm test
