@@ -16,7 +16,13 @@ describe("HTML Parsing", function () {
     });
 
     it('parser should throw for null html param', function () {
-        systemUnderTest.getNextTransfers.should.throw();
+        let expectedErrorMessage = 'param html must neither be null nor undefined';
+        (function() {systemUnderTest.getNextTransfers(null)}).should.throw(expectedErrorMessage);
+    });
+
+    it('parser should throw for undefined html param', function () {
+        let expectedErrorMessage = 'param html must neither be null nor undefined';
+        systemUnderTest.getNextTransfers.should.throw(expectedErrorMessage);
     });
 
     it('parser should return one entry for valid html with one bus', function () {
