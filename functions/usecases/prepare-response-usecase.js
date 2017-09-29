@@ -3,6 +3,7 @@
 const Rx = require('rxjs');
 const api = require('../api/api');
 const parser = require('../parsing/parsing');
+const Utils = require('../util/utils');
 const ANSWER_TEMPLATE = 
 "The 2nd is number N81 towards 'Hiltrup Franz-Marc-Weg' coming in 12 minutes."
 
@@ -30,27 +31,14 @@ function mapToAnswer(arrayOfTransfers) {
 }
 
 function getAnswerTextForSingleEntry(entry, index) {
-    let ordinal = getOrdinal(index + 1);
+    let ordinal = Utils.getOrdinal(index + 1);
     let minutesString = entry.time === 1 ? 'minute' : 'minutes';
     let duration = entry.time;
     let destination = entry.direction;
     let busNumber = entry.line;
     let messageForThisBus = `The ${ordinal} is number ${busNumber} towards '${destination}' coming in ${duration} ${minutesString}. `;
     return messageForThisBus;
-
 }
-
-// being lazy, I asked the web, which came up with this function
-// origin: https://stackoverflow.com/a/12487454
-function getOrdinal(n) {
-    if((parseFloat(n) == parseInt(n)) && !isNaN(n)){
-        var s=["th","st","nd","rd"],
-        v=n%100;
-        return n+(s[(v-20)%10]||s[v]||s[0]);
-    }
-    return n;
-}
-
 
 function handleError(err) {
     let message;
