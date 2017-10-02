@@ -10,5 +10,16 @@ module.exports = {
             return n + (s[(v - 20) % 10] || s[v] || s[0]);
         }
         return n;
+    },
+    clone: function(oldObject) {
+        // according to this, this is okay:
+        // http://jsben.ch/bWfk9
+        // If necessary, this can always replaced with
+        // a better version, like Lodash's one
+        //
+        // Note: Object assign doesn't do a deep copy -
+        // so while fastest in the linked benchmark,
+        // it's not helpful here.
+        return JSON.parse(JSON.stringify(oldObject));
     }
 }
