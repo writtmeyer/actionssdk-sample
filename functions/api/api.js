@@ -27,10 +27,14 @@ function mapErrorToDomainTypes(err) {
     //console.error(err);
     if (err.name === "StatusCodeError") {
         return Rx.Observable.throw(new ApiError(err.statusCode, "API returned an error code"));
-    } else if (err.name == "RequestError") {
+    } else if (err.name === "RequestError" &&
+        (err.cause.message === "ESOCKETTIMEDOUT" ||
+            err.cause.message === "ETIMEDOUT" ||
+            err.cause.message === "Network timeout")) {
         return Rx.Observable.throw(new TimeoutError("API didn't respond in time"));
+    } else {
+        return Rx.Observable.throw(err);
     }
-    Rx.Observable.throw(err);
 }
 
 module.exports = {

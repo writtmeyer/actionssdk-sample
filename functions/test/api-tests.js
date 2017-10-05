@@ -1,10 +1,20 @@
 "use strict";
 
 const nock = require('nock');
-const Rx = require("rxjs");
+const Rx = require('rxjs');
+const sinon = require('sinon');
+const rp = require('request-promise-native');
+let requestStub;
 
 describe("API calls", function () {
     const systemUnderTest = require('../api/api.js');
+
+    afterEach(function() {
+        if (requestStub) {
+            requestStub.restore();
+            requestStub = null;1
+        }
+    });
 
     it('should return empty html when api call results in exception', function (done) {
         nock(systemUnderTest.URL)
@@ -81,6 +91,29 @@ describe("API calls", function () {
                 (val) => done(new Error('value should not be emitted')),
                 (err) => {
                     if (err.name === 'TimeoutError') {
+                        done();
+                    }
+                    else {
+                        done(new Error('Wrong type of error occurred'))
+                    }
+                () => done(new Error("onCompleted should not be called"))
+                }
+            );
+    });
+
+    it('should fail when request returns unexpected error object', function (done) {
+        requestStub = sinon.stub(Rx.Observable, "fromPromise");
+        requestStub.returns(Rx.Observable.throw(new Error("some horrible problem")));
+
+        let actual$ = systemUnderTest.getNextTransfersFromApi$();
+        let count = 0;
+        actual$
+            .subscribeOn(Rx.Scheduler.queue)
+            .observeOn(Rx.Scheduler.queue)
+            .subscribe(
+                (val) => done(new Error('value should not be emitted')),
+                (err) => {
+                    if (err.name === 'Error') {
                         done();
                     }
                     else {
