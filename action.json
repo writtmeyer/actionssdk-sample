@@ -1,26 +1,39 @@
 {
-	"actions": [
-      {
-        "description": "Default Welcome Intent",
-        "name": "MAIN",
-        "fulfillment": {
-          "conversationName": "<INSERT YOUR CONVERSATION NAME HERE>"
-        },
-        "intent": {
-          "name": "actions.intent.MAIN",
-          "trigger": {
-            "queryPatterns": [
-              "talk to <INSERT YOUR NAME HERE>"
-            ]
-          }
+  "actions": [
+    {
+      "description": "Default Welcome Intent",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "do-i-have-to-rush"
+      },
+      "intent": {
+        "name": "actions.intent.MAIN",
+        "trigger": {
+          "queryPatterns": [
+            "talk to let's rush",
+            "let's rush",
+            "do i have to rush",
+            "do i have to hurry",
+            "start let's rush"
+          ]
         }
       }
-    ],
-    "conversations": {
-      "<INSERT YOUR CONVERSATION NAME HERE>": {
-        "name": "<INSERT YOUR CONVERSATION NAME HERE>",
-        "url": "<INSERT YOUR FULLFILLMENT URL HERE>"
+    },
+    {
+      "description": "Everything Else Intent",
+      "name": "allElse",
+      "fulfillment": {
+        "conversationName": "do-i-have-to-rush"
+      },
+      "intent": {
+        "name": "actions.intent.TEXT"
       }
     }
-
+  ],
+  "conversations": {
+    "do-i-have-to-rush": {
+      "name": "do-i-have-to-rush",
+      "url": "https://us-central1-gcloudProjectId.cloudfunctions.net/nameOfFunction"
+    }
+  }
 }
